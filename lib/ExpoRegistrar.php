@@ -75,7 +75,7 @@ class ExpoRegistrar
      *
      * @return array
      */
-    public function getInterests(array $interests): array
+    public function getInterests(array $interests)
     {
         $tokens = [];
 
@@ -111,7 +111,7 @@ class ExpoRegistrar
      *
      * @return bool
      */
-    private function isValidExpoPushToken(string $token)
+    private function isValidExpoPushToken($token)
     {
         return  substr($token, 0, 18) ===  "ExponentPushToken[" && substr($token, -1) === ']';
     }

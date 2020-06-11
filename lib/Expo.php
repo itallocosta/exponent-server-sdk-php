@@ -77,7 +77,7 @@ class Expo
     /**
      * Send a notification via the Expo Push Notifications Api.
      *
-     * @param array $interests
+     * @param $interests
      * @param array $data
      * @param bool $debug
      *
@@ -86,9 +86,13 @@ class Expo
      *
      * @return array|bool
      */
-    public function notify(array $interests, array $data, $debug = false)
+    public function notify($interests, array $data, $debug = false)
     {
         $postData = [];
+
+        if (is_string($interests)) {
+            $interests = [$interests];
+        }
 
         if (count($interests) == 0) {
             throw new ExpoException('Interests array must not be empty.');
@@ -108,7 +112,7 @@ class Expo
         $response = $this->executeCurl($ch);
 
         // If the notification failed completely, throw an exception with the details
-        if ($debug && $this->failedCompletely($response, $recipients)) {
+        if (!$debug && $this->failedCompletely($response, $interests)) {
             throw ExpoException::failedCompletelyException($response);
         }
 
@@ -119,13 +123,13 @@ class Expo
      * Determines if the request we sent has failed completely
      *
      * @param array $response
-     * @param array $recipients
+     * @param array $interests
      *
      * @return bool
      */
-    private function failedCompletely(array $response, array $recipients)
+    private function failedCompletely(array $response, array $interests)
     {
-        $numberOfRecipients = count($recipients);
+        $numberOfInterests = count($interests);
         $numberOfFailures = 0;
 
         foreach ($response as $item) {
@@ -134,7 +138,7 @@ class Expo
             }
         }
 
-        return $numberOfFailures === $numberOfRecipients;
+        return $numberOfFailures === $numberOfInterests;
     }
 
     /**
@@ -170,7 +174,7 @@ class Expo
     public function getCurl()
     {
         // Create or reuse existing cURL handle
-        $this->ch = $this->ch ?? curl_init();
+        $this->ch = $this->ch ?: curl_init();
 
         // Throw exception if the cURL handle failed
         if (!$this->ch) {
@@ -196,7 +200,8 @@ class Expo
             'status_code' => curl_getinfo($ch, CURLINFO_HTTP_CODE)
         ];
 
-        $responseData = json_decode($response['body'], true)['data'] ?? null;
+        $responseData = json_decode($response['body'], true);
+	$responseData = !empty($responseData['data']) ? $responseData['data'] : null;
 
         if (! is_array($responseData)) {
             throw new UnexpectedResponseException();

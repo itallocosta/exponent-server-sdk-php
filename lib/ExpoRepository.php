@@ -11,7 +11,7 @@ interface ExpoRepository
      *
      * @return bool
      */
-    public function store($key, $value): bool;
+    public function store($key, $value);
 
     /**
      * Retrieve an Expo token with a given identifier
@@ -20,7 +20,7 @@ interface ExpoRepository
      *
      * @return array|string|null
      */
-    public function retrieve(string $key);
+    public function retrieve($key);
 
     /**
      * Removes an Expo token with a given identifier
@@ -30,5 +30,5 @@ interface ExpoRepository
      *
      * @return bool
      */
-    public function forget(string $key, string $value = null): bool;
+    public function forget($key, $value = null);
 }
